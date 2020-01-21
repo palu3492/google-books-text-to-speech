@@ -1,22 +1,26 @@
 {
   "author": "Alex Palumbo",
-  "manifest_version": 1,
-  "name": "",
-  "description": "",
+  "manifest_version": 2,
+  "name": "Google Books Text to Speech",
+  "description": "Reads Google Books audibly",
   "version": "0.0.1",
+  "permissions": [
+    "ttsEngine",
+    "tts"
+  ],
+  "background": {
+    "scripts": ["js/background.js"],
+    "persistent": false
+  },
   "content_scripts": [
     {
       "matches": [
-        ""
+        "https://books.googleusercontent.com/books/reader/display?guctk=*"
       ],
       "run_at": "document_end",
-      "js": ["js/content.js"],
-      "css": []
+      "js": ["js/jquery-3.4.1.min.js", "js/responsivevoice.js", "js/content.js"],
+      "css": ["css/style.css"],
+      "all_frames": true
     }
-  ],
-  "web_accessible_resources":[],
-  "icons": { "16": "images/icon16.png",
-    "48": "images/icon48.png",
-    "128": "images/icon128.png"
-  }
+  ]
 }
