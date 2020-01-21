@@ -4,13 +4,21 @@
     z-index: 1000;
     right: calc(50% - 100px);
     width: 200px;
-    padding: 20px;
+    padding: 15px;
     background: #00000040;
     text-align: center;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
+    box-sizing: border-box;
 }
 
 .highlight{
     background: #0000ff30;
+}
+.oldHighlight{
+    background: #0000002e;
+}
+
+button{
+    margin: 5px;
 }

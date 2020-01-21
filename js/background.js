@@ -1,12 +1,12 @@
 
-
-
 chrome.runtime.onConnect.addListener(function(port) {
     // port.name
     port.onMessage.addListener(function(msg) {
         if(msg.type === 'stop'){
+            console.log('stop speaking');
             chrome.tts.stop();
         }else if(msg.type === 'speak'){
+            console.log('start speaking');
             speak(msg.text, port);
         }
     });
@@ -18,7 +18,12 @@ function speak(text, port){
             if(e.type === 'word') {
                 port.postMessage('word');
             }
-        }
+        },
+        volume: 0.5,
+        // Google US English
+        // Google UK English Female
+        // Google UK English Male
+        // voiceName: 'Google UK English Male'
     });
 }
 
