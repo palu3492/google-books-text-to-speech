@@ -1,0 +1,16 @@
+
+#container{
+    position: fixed;
+    z-index: 1000;
+    right: calc(50% - 100px);
+    width: 200px;
+    padding: 20px;
+    background: #00000040;
+    text-align: center;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.highlight{
+    background: #0000ff30;
+}

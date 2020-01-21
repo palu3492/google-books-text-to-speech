@@ -1,9 +1,29 @@
 
-chrome.runtime.onMessage.addListener(function(request) {
-    chrome.tts.speak(request.msg);
+
+
+chrome.runtime.onConnect.addListener(function(port) {
+    // port.name
+    port.onMessage.addListener(function(msg) {
+        if(msg.type === 'stop'){
+            chrome.tts.stop();
+        }else if(msg.type === 'speak'){
+            speak(msg.text, port);
+        }
+    });
 });
 
-function speak(utterance) {
+function speak(text, port){
+    chrome.tts.speak(text, {
+        onEvent: (e) => {
+            if(e.type === 'word') {
+                port.postMessage('word');
+            }
+        }
+    });
+}
+
+
+// function speak(utterance) {
     // if (speaking && utterance == lastUtterance) {
     //     chrome.tts.stop();
     //     return;
@@ -20,7 +40,7 @@ function speak(utterance) {
     // var pitch = localStorage['pitch'] || 1.0;
     // var volume = localStorage['volume'] || 1.0;
     // var voice = localStorage['voice'];
-    chrome.tts.speak(utterance);
+    // chrome.tts.speak(utterance);
 
     // chrome.tts.speak(
     //     utterance,
@@ -40,4 +60,4 @@ function speak(utterance) {
     //             }
     //         }
     //     });
-}
+// }

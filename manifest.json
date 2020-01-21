@@ -18,7 +18,7 @@
         "https://books.googleusercontent.com/books/reader/display?guctk=*"
       ],
       "run_at": "document_end",
-      "js": ["js/jquery-3.4.1.min.js", "js/responsivevoice.js", "js/content.js"],
+      "js": ["js/jquery-3.4.1.min.js", "js/content.js"],
       "css": ["css/style.css"],
       "all_frames": true
     }

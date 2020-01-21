@@ -1,10 +1,54 @@
 
-let html = '<div><button type="button">Play</button></div>';
+let html = '<div id="container"><button type="button" id="play">Play</button><button type="button" id="stop">Stop</button></div>';
+
+$(document).ready(ready);
+
+function ready(){
+    $('body').append( $(html) );
+    $('#play').click(()=>{
+        textToSpeech()
+    });
+    $('#stop').click(()=>{
+        stop();
+    });
+    // textToSpeech();
+}
+
+let allWords;
+function textToSpeech(){
+    allWords = $.find('gbt');
+    console.log(allWords);
+    // // All book text for visible pages
+    let bookText = $('.gb-text-reader').first().text();
+    speak(bookText);
+}
+
+let index = 0;
+
+let port;
+function speak(text){
+    highlightText();
+    port = chrome.runtime.connect({name: "texttospeech"});
+    port.postMessage({type: 'speak', text: text});
+    port.onMessage.addListener(function(e) {
+        index++;
+        highlightText();
+    });
+}
+function stop(){
+    port.postMessage({type: 'stop'});
+}
+
+function highlightText(){
+    if(index > 0){
+        $(allWords[index-1]).removeClass('highlight');
+    }
+    $(allWords[index]).addClass('highlight');
+}
 
 // let rv = responsiveVoice;
 let go = true;
 function play(){
-    responsiveVoice.setDefaultVoice("UK English Male");
 
     let allWords = $.find('gbt');
     // console.log(allWords);
@@ -35,17 +79,9 @@ function play(){
 
     console.log(cleanSentences);
 
-    // responsiveVoice.speak(bookText);
-    // speechSynthesis.getVoices();
-    //voice = SpeechSynthesisVoice
+    let s = cleanSentences[0];
 
-    var synthesis = window.speechSynthesis;
-
-    cleanSentences.forEach(sentence => {
-        let b = new SpeechSynthesisUtterance(sentence);
-        b.voice = synthesis.getVoices()[5]; //  UK English Male
-        synthesis.speak(b);
-    });
+    say(s);
 
 
     // let i = 0;
@@ -82,6 +118,19 @@ function done(){
     console.log('done');
 }
 
-function testEvent(){
-    chrome.extension.sendMessage({msg: 'test one two three'});
+function say(text){
+    chrome.extension.sendMessage({text: text}, reply);
 }
+
+function reply(text){
+    console.log(text);
+}
+
+// chrome.runtime.onMessage.addListener(function(request) {
+//     if(request.word) {
+//         console.log(request.word);
+//     }
+// });
+
+
+
