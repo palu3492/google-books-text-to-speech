@@ -1,4 +1,5 @@
 
+
 chrome.runtime.onConnect.addListener(function(port) {
     // port.name
     port.onMessage.addListener(function(msg) {
@@ -8,18 +9,25 @@ chrome.runtime.onConnect.addListener(function(port) {
         }else if(msg.type === 'speak'){
             console.log('start speaking');
             speak(msg.text, port);
+        }else if(msg.type === 'volume'){
+            console.log('changed volume');
+            console.log(msg.level);
+            // speak(msg.level, port);
         }
     });
 });
 
+let tts;
+
 function speak(text, port){
-    chrome.tts.speak(text, {
+    tts = chrome.tts;
+    tts.speak(text, {
         onEvent: (e) => {
             if(e.type === 'word') {
                 port.postMessage('word');
             }
         },
-        volume: 0.5,
+        volume: 0.2,
         // Google US English
         // Google UK English Female
         // Google UK English Male

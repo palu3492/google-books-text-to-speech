@@ -5,7 +5,6 @@
   "description": "Reads Google Books audibly",
   "version": "0.0.1",
   "permissions": [
-    "ttsEngine",
     "tts"
   ],
   "background": {
@@ -19,7 +18,7 @@
       ],
       "run_at": "document_end",
       "js": ["js/jquery-3.4.1.min.js", "js/content.js"],
-      "css": ["css/style.css"],
+      "css": ["css/style.css", "css/slider.css"],
       "all_frames": true
     }
   ]

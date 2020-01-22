@@ -1,73 +1,81 @@
 
-let html = '<div id="container"><button type="button" id="play">Play</button><button type="button" id="stop">Stop</button></div>';
+let html = `
+<div id="container1">
+<div id="container2">
+    <button type="button" class="button" id="play">Play</button>
+    <button type="button" class="button" id="stop">Stop</button>
+    Volume
+    <input type="range" min="1" max="5" value="3" id="volume-slider">
+</div>
+<button type="button" id="visibility">🡅</button>
+</div>
+`;
 
-$(document).ready(setup);
+$(document).ready(init);
 
-function setup(){
+let port;
+function init(){
+    uiSetup();
+    port = chrome.runtime.connect({name: "texttospeech"});
+}
+
+function uiSetup(){
     $('body').append( $(html) );
     $('#play').click(()=>{
-        textToSpeech();
+        // textToSpeech();
+        t();
     });
     $('#stop').click(()=>{
         stop();
     });
-}
-
-let wordElements = [];
-let bookWords;
-function textToSpeech(){
-    let elements = $.find('gbt');
-    elements.forEach(wordElement => {
-        if($(wordElement).text().trim()){
-            wordElements.push(wordElement);
+    let v = $('#visibility');
+    let c = $('#container2');
+    v.click(()=>{
+        if(v.text() === '🡅'){
+            c.hide();
+            v.text('🡇');
+        }else{
+            c.show();
+            v.text('🡅');
         }
     });
-    // All book text for visible pages
-    let bookText = $('.gb-text-reader').first().text();
-    bookText = bookText.replace(/\s+/g, ' ').trim();
-    bookWords = bookText.split(' ');
-    console.log(bookWords);
-    console.log(wordElements);
-    updateWordElements();
+    $('#volume-slider')[0].addEventListener("change", function() {
+        let volumeMap = {'1': 0.2,'2': 0.4,'3': 0.6,'4': 0.8,'5': 1.0};
+        let value = volumeMap[$('#volume-slider')[0].value];
+        port.postMessage({type: 'volume', level: value});
+    }, false);
+}
+
+let words = [[]];
+let bookText = "";
+function t(){
+    let elements = $('gbt');
+    for(let i = 0; i<elements.length; i++){
+        let element = elements[i];
+        let text = element.textContent;
+        bookText += text;
+        if(text.trim() === ''){
+            //words.push(element);
+            words.push([]);
+        } else {
+            words[words.length-1].push(element);
+        }
+    }
+    bookText = bookText.replace(/\s+/g, ' ');
+    // console.log(bookText);
+    // console.log(words);
     speak(bookText);
 }
 
-let newWordElements = [];
-function updateWordElements(){
-    let w = 0;
-    for(let i=0; i<bookWords.length; i++){
-        console.log(bookWords[i]);
-        let c = 0;
-        newWordElements[w] = [];
-        while(elementText(w) !== bookWords[i]){
-            newWordElements[w].push(wordElements[w+c]);
-            c++;
-        }
-        w += c;
-        w++;
-        console.log(elementText(w));
-        console.log(w);
-    }
-}
-
-function elementText(w){
-    let text = "";
-    newWordElements[w].forEach(element => {
-        text += $(element).text().trim();
-    });
-    return text;
-}
 
 let index = 0;
 
-let port;
 function speak(text){
     highlightText();
-    port = chrome.runtime.connect({name: "texttospeech"});
     port.postMessage({type: 'speak', text: text});
     port.onMessage.addListener(function(e) {
-        index++;
         highlightText();
+        index++;
     });
 }
 function stop(){
@@ -75,37 +83,28 @@ function stop(){
     port.postMessage({type: 'stop'});
 }
 
+// Highlights the element the is being spoken
 function highlightText(){
+    // console.log(bookText.split(' ')[index]);
+    // console.log(elementsText());
     if(index > 0){
         // $(newWordElements[index-1]).removeClass('highlight');
         // $(bookWords[index-1]).addClass('oldHighlight');
-        newWordElements[index-1].forEach(element => {
+        words[index-1].forEach(element => {
             $(element).removeClass('highlight');
         });
     }
-    newWordElements[index].forEach(element => {
+    words[index].forEach(element => {
         $(element).addClass('highlight');
     });
 }
 
-// let go = true;
-// function play(){
-//
-//     let allWords = $.find('gbt');
-//     // console.log(allWords);
-//
-//     // allWords.forEach(word => {
-//     //     //console.log(word.textContent);
-//     //     responsiveVoice.speak(word.textContent);
-//     // });
-//
-//     // All book text for visible pages
-//     let bookText = $('.gb-text-reader').first().text();
-//     //console.log(bookText);
-//     // Remove newlines and other white space
-//     bookText = bookText.replace(/\s+/g, ' ');
-//     // Remove all punctuation
-//     bookText = bookText.replace(/[^\w\s.]/gi, '');
-//     // console.log(bookText);
-//     // Split on periods to create an array of sentences
-//     let sentences = bookText.split('.');
+// Returns the text within an array of multiple elements
+function elementsText(){
+    let text = "";
+    words[index].forEach(element => {
+        text += element.textContent;
+    });
+    return text;
+}
+
