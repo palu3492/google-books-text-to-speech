@@ -1,33 +1,40 @@
 
+let tts = chrome.tts;
+
+let settings = {
+    volume: 0.2,
+    voice: ''
+};
 
 chrome.runtime.onConnect.addListener(function(port) {
     // port.name
     port.onMessage.addListener(function(msg) {
-        if(msg.type === 'stop'){
-            console.log('stop speaking');
-            chrome.tts.stop();
-        }else if(msg.type === 'speak'){
-            console.log('start speaking');
+        if(msg.type === 'play'){
+            console.log('start tts');
             speak(msg.text, port);
+        }else if(msg.type === 'pause'){
+            console.log('pause tts');
+            tts.pause();
+        }else if(msg.type === 'stop'){
+            console.log('stop tts');
+            tts.stop();
         }else if(msg.type === 'volume'){
-            console.log('changed volume');
-            console.log(msg.level);
-            // speak(msg.level, port);
+            console.log('volume change tts');
+            settings.volume = msg.level;
+        }else if(msg.type === 'update'){
+            console.log('update settings tts');
         }
     });
 });
 
-let tts;
-
 function speak(text, port){
-    tts = chrome.tts;
     tts.speak(text, {
         onEvent: (e) => {
             if(e.type === 'word') {
                 port.postMessage('word');
             }
         },
-        volume: 0.2,
+        volume: settings.volume,
         // Google US English
         // Google UK English Female
         // Google UK English Male
